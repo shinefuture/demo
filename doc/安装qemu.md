@@ -41,85 +41,137 @@ sudo apt-get install gcc-arm-linux-gnueabi
 sudo apt-get install qemu
 ```
 
-## 2. 制作kernel镜像及根文件系统
+## 2. 制作根文件系统及kernel镜像
 
-### 2.1 制作kernel镜像
+### 2.1 制作根文件系统
+根文件系统由基本的运行命令、库和字符设备构成。
+基本的运行命令需要使用Busybox，这个库也需要进行交叉编译。
+
+#### 2.1.1 编译
+- 解压源代码，在源代码目录下运行：
+```
+make defconfig  
+export ARCH=arm  
+export CROSS_COMPILE=arm-linux-gnueabi-
+make menuconfig
+```
+
+- 进入menuconfig后，配置成静态编译:
+```
+   Settings  ---> 
+     --- Build Options 
+     [*] Build static binary (no shared libs) 
+```
+- 最后进行编译：
+```
+make install -j8
+```
+安装完成后，该目录下生成的_install，即是基本的运行指令。
+
+##### 2.1.2 添加根文件目录其它文件
+
+然后就开始一步步建立根文件系统。
+
+1. 创建rootfs目录
+```
+mkdir rootfs/lib -p
+cp busybox/_install/* rootfs/ -r
+```
+2. 创建etc、dev等目录
+```
+cd rootfs
+mkdir {etc/init.d/,dev,mnt} -p
+```
+
+3. 在rootfs/ect/init.d目录下新创建一个rcS文件，并写入如下内容：
+```
+mkdir -p /proc
+mkdir -p /tmp
+mkdir -p /sys
+mkdir -p /mnt
+/bin/mount -a
+mkdir -p /dev/pts
+mount -t devpts devpts /dev/pts
+echo /sbin/mdev > /proc/sys/kernel/hotplug
+mdev -s
+```
+需要修改rcS可执行权限：
+```
+chmod +x rootfs/etc/init.d/rcS
+```
+
+4. 在rootfs/etc目录下新创建一个fstab文件，并写入如下内容：
+```
+proc /proc proc defaults 0 0
+tmpfs /tmp tmpfs defaults 0 0
+sysfs /sys sysfs defaults 0 0
+tmpfs /dev tmpfs defaults 0 0
+debugfs /sys/kernel/debug debugfs defaults 0 0
+```
+
+5. 在rootfs/etc目录下新创建一个inittab文件，并写入如下内容：
+```
+::sysinit:/etc/init.d/rcS
+::respawn:-/bin/sh
+::askfirst:-/bin/sh
+::ctrlaltdel:/bin/umount -a -r
+```
+
+6. 在rootfs/dev目录下创建如下设备节点，需要root权限：
+```
+cd rootfs/dev
+sudo mknod console c 5 1
+sudo mknod null c 1 3
+```
+
+7. 从工具链拷贝运行库到lib下
+```
+cp -p /usr/arm-linux-gnueabi/lib/* rootfs/lib/ 
+```
+
+### 2.2 制作kernel镜像
 
 - 解压下载的kernel文件，进入解压后的文件夹，运行下面的指令编译:
 ```
 export ARCH=arm  
 export CROSS_COMPILE=arm-linux-gnueabi-  
 make vexpress_defconfig  
-make zImage -j8  
-make modules -j8  
-make dtbs  
+```
+- 配置initramfs，在initramfs source file中填入rootfs(最好绝对路径)，并把Default kernel command string清空： 
+```
+    General setup  --->
+       [*] Initial RAM filesystem and RAM disk (initramfs/initrd) support
+       (rootfs) Initramfs source file(s) 
+
+    Boot options  --->
+       () Default kernel command string
+```
+遇到的坑：使用SecureCRT不能使用退格键删除，与SecureCRT配置有关，配置如下：
+```
+选项->会话选项->终端->仿真->映射键，勾选“Backspace发送delete(B)”选项即可。
 ```
 
-- 随后就可以将生成的zImage和dtbs拷贝到单独的文件夹中，拷贝指令：
+- 配置memory split为“3G/1G user/kernel split”，并打开高端内存：
 ```
-mkdir ../extra_folder -p 
-cp arch/arm/boot/zImage ../extra_folder/  
-cp arch/arm/boot/dts/*ca9.dtb ../extra_folder/  
-cp .config  ../extra_folder/
-```
-
-### 2.2 制作根文件系统
-根文件系统由基本的运行命令、库和字符设备构成。
-基本的运行命令需要使用Busybox，这个库也需要进行交叉编译。
-
-解压源代码，在源代码目录下运行：
-```
-make defconfig  
-make menuconfig
-# 进入menuconfig后，配置成静态编译
-make ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- -j8 
-make install ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- -j8
-```
-安装完成后，该目录下生成的_install，即是基本的运行指令。
-然后就开始一步步建立根文件系统。
-
-#### 2.2.1 创建rootfs目录
-```
-mkdir rootfs/lib -p
+    Kernel Features  --->
+        Memory split (2G/2G user/kernel split)  --->
+            (X) 3G/1G user/kernel split
 ```
 
-#### 2.2.2 拷贝busybox命令
+- 开始编译kernel
 ```
-cp _install/* -r ../rootfs/
-```
-
-#### 2.2.3 从工具链拷贝运行库到lib下
-```
-cp -P /usr/arm-linux-gnueabi/lib/* rootfs/lib/ 
-```
-
-#### 2.2.4 创建4个tty终端设备
-c代表字符设备，4是主设备号，1~2~3~4是次设备号
-```
-mknod rootfs/dev/tty1 c 4 1  
-mknod rootfs/dev/tty2 c 4 2  
-mknod rootfs/dev/tty3 c 4 3  
-mknod rootfs/dev/tty4 c 4 4  
+make bzImage -j8 ARCH=arm CROSS_COMPILE=arm-linux-gnueabi-
+make dtbs
 ```
 
 ## 3. 启动qume模拟系统
-
-- 使用下面的指令启动，会在当前窗口中显示qemu虚拟出的终端
-```
-qemu-system-arm -M vexpress-a9 -m 512M -dtb extra_folder/vexpress-v2p-ca9.dtb -kernel extra_folder/zImage -nographic -append "root=/dev/mmcblk0 rw console=ttyAMA0" -sd a9rootfs.ext3  
-```
-
-- 使用下面的指令启动，会另开一个窗口显示虚拟终端
-```
-qemu-system-arm -M vexpress-a9 -m 512M -dtb extra_folder/vexpress-v2p-ca9.dtb -kernel extra_folder/zImage -append "root=/dev/mmcblk0 rw" -sd a9rootfs.ext3 
-```
-
 ```
 qemu-system-arm -M vexpress-a9 \
 -smp 4 \
 -m 1024M \
--kernel /home/wxm/qemu/linux-4.15/arch/arm/boot/zImage \
+-kernel linux/arch/arm/boot/zImage \
 -append "rdinit=/linuxrc console=ttyAMA0 loglevel=8" \
--dtb /home/wxm/qemu/linux-4.15/arch/arm/boot/dts/vexpress-v2p-ca9.dtb \
+-dtb linux/arch/arm/boot/dts/vexpress-v2p-ca9.dtb \
 -nographic
 ```
+注意：-dtb以及-kernel路径最好为绝对路径。
