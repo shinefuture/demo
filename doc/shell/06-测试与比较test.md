@@ -10,6 +10,7 @@
   - ``[ file_operator FILE ]``  
 
 文件测试符：  
+
 文件测试  |  说明  
 ---|---
 -f FILE | 英文file，文件存在且为普通文件则真，即测试表达式成立
@@ -43,6 +44,7 @@ f1 -ot f2 | older than，文件f1比文件f2旧则真
   - ``[ string_operator STRING ]``    
 
 字符串测试符：  
+
 字符串测试 | 说明  
 ---|---
 -z "string" | 字符串string为空时返回真
@@ -58,6 +60,7 @@ f1 -ot f2 | older than，文件f1比文件f2旧则真
   - ``[ "num1" num_operator "num2" ]`` 
 
 整数测试符：  
+
 整数比较 | 说明  
 ---|---
 "num1" -eq "num2" | 如果num1等于num2则返回真  
@@ -68,6 +71,7 @@ f1 -ot f2 | older than，文件f1比文件f2旧则真
 "num1" -le "num2" | 如果num1小于等于num2则返回真  
 
 另外，还可以在(())和[[]]中使用比较运算符进行比较：  
+
 整数比较 | 说明  
 ---|---
 "num1" == "num2" | 如果num1等于num2则返回真，"=="与"="效果一样  
