@@ -36,7 +36,7 @@ f1 -ot f2 | older than，文件f1比文件f2旧则真
 
 例：文件存在则echo 1，否则echo 0   
 ``[ -f oldboy ]&&echo 1 || echo 0``  
-最好加上双引号，否则结果肯能不太准：  
+最好加上双引号，否则结果可能不太准：  
 ``[ -f "oldboy" ]&&echo 1 || echo 0``  
 
 ## 2 字符串测试
