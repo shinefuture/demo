@@ -5,6 +5,7 @@
   - ``[ expression ]``  
 
 ## 1 文件测试
+
 格式：  
   - ``test file_operator FILE``
   - ``[ file_operator FILE ]``  
@@ -39,6 +40,7 @@ f1 -ot f2 | older than，文件f1比文件f2旧则真
 ``[ -f "oldboy" ]&&echo 1 || echo 0``  
 
 ## 2 字符串测试
+
 格式：  
   - ``test string_operator STRING``  
   - ``[ string_operator STRING ]``    
@@ -55,6 +57,7 @@ f1 -ot f2 | older than，文件f1比文件f2旧则真
 "string1" \< "string2" | 按照字典排序，字符串string1排在string2之**后**时返回真
 
 ## 3 整数比较
+
 格式：
   - ``test "num1" num_operator "num2"``  
   - ``[ "num1" num_operator "num2" ]`` 
@@ -85,7 +88,9 @@ f1 -ot f2 | older than，文件f1比文件f2旧则真
 ## 4 逻辑测试符和逻辑运算符
 
 ### 4.1 逻辑测试符   
-逻辑测试用于一个表达式中连接多个测试条件，并返回整个表达式的值  
+
+逻辑测试用于一个表达式中连接多个测试条件，并返回整个表达式的值
+
 格式： 
   - ``test expression1 operator expression2``  
   - ``[ expression1 operator expression2 ]``  
@@ -97,7 +102,9 @@ expression1 -a expression2 | 与and，expression1和expression2同时为真，�
 expression1 -o expression2 | 或or，expression1和expression2只有有一个为真，返回真
 
 ### 4.2 逻辑运算符  
+
 逻辑运算用于多个表达式之间进行测试
+
 格式：  
   - ``[ expression1 ] operator [ expression ]``   
   - ``[[ expression1 operator expression2 ]]``

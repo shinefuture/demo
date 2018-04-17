@@ -38,6 +38,7 @@ shell中共有4种引用符，分别为双引号、单引号、反引号和转�
   - 反引号则会将反引号括起来的内容解释为系统命令。  
 
 ### 2.1 部分引用
+
 ```
 oldboy@server:~$ VAR=100
 oldboy@server:~$ echo $VAR
@@ -47,7 +48,9 @@ oldboy@server:~$ echo "$VAR"
 ```
 
 ### 2.2 全引用  
-所看即所得。  
+
+所看即所得。 
+
 ```
 oldboy@server:~$ VAR=100
 oldboy@server:~$ echo $VAR
@@ -59,8 +62,10 @@ $VAR
 ```
 
 ## 3 命令替换（命令引用）  
+
 命令替换是指将命令的标准输出作为值赋给某个变量。  
-有2种方式，一种是反引号(\`)，一种是$()。  
+有2种方式，一种是反引号(\`)，一种是$()。 
+
 ```
 oldboy@server:~$ DATE_01=`date`
 oldboy@server:~$ DATE_02=$(date)
