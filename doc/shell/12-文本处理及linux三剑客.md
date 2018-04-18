@@ -57,34 +57,34 @@ grep一般常用参数
 格式：    
 ``sed [选项] [sed内置命令字符] [输入文件]``    
 
-选项参数：
- -n 取消默认的sed输出，常与sed内置命令的p连用
- -i 直接修改文件内容，而不是输出的到终端
- -r, --regexp-extended,扩展正则表达式，在脚本中使用扩展正则表达式
+选项参数：    
+ -n 取消默认的sed输出，常与sed内置命令的p连用     
+ -i 直接修改文件内容，而不是输出的到终端    
+ -r, --regexp-extended,扩展正则表达式，在脚本中使用扩展正则表达式     
 
-内置命令字符：
- - a append追加文本到指定行后
- - i insert插入文本到指定行前
-例：
+内置命令字符：    
+ - a append追加文本到指定行后    
+ - i insert插入文本到指定行前     
+例：     
 ```
  sed '2a new-text-context' input-file.txt
  sed '2i new-text-context' input-file.txt
 ```
- - d delete删除指定的行
+ - d delete删除指定的行    
 例：
  ``sed '2d' input-file.txt``
- - c 用新行取代旧行
-例：
+ - c 用新行取代旧行     
+例：   
  ``sed '2c new-context' input-file.txt``
- - s#regexp#replacement# 文本替换
+ - s#regexp#replacement# 文本替换    
  常用s###g, g是一个标志，代表全局替换，其中#为定界符，定界符可以是任意符号如:或|等，常用#。
-例：
+例：    
  ``sed 's#old_context#new_context#g' input-file.txt``
- - p print，表示打印匹配行的内容，通常p会与选项-n一起使用
-例：
+ - p print，表示打印匹配行的内容，通常p会与选项-n一起使用     
+例：    
  ``sed -n '2p' input-file.txt``
- - & 代表被替换的内容
-例：将"a"替换为"--a--"
+ - & 代表被替换的内容    
+例：将"a"替换为"--a--"     
 ```
 [wxm@basic sed]$ cat abc.txt 
 hhha
@@ -96,22 +96,22 @@ bbb--a--
 ccca
 ```
 
-- 多行操作：
- n1[,n2]{sed-commands}
+- 多行操作：    
+ n1[,n2]{sed-commands}    
 例：
- 10{sed-commands} 对第10行进行操作
- 10,20{sed-command} 对10到20行进行操作，包括第10,20行
- 10, +20{sed-command} 对10到30（10+20）行进行操作，包括第10,30行
- 1~2{sed-command} 对1,3,5,7,...行进行操作
- 10, ${sed-command} 对10到最后一行进行操作，包括第10行
- /context/{sed-command} 对匹配context的行进行操作
- /context/,/context2/{sed-command} 对匹配context的行到匹配context2的行操作
- /context/,${sed-command} 对匹配context的行到最后一行进行操作
- /context/,10 对匹配context的行到第10行进行操作，注意：如果前10行没有匹配到context，sed软件会显示10行以后匹配context的行
- 1,/context/{sed-command} 对第1行到匹配context的行进行操作
- /context/,+2{sed-command} 对匹配context的行到其后的2行进行操作
+ 10{sed-commands} 对第10行进行操作     
+ 10,20{sed-command} 对10到20行进行操作，包括第10,20行     
+ 10, +20{sed-command} 对10到30（10+20）行进行操作，包括第10,30行    
+ 1~2{sed-command} 对1,3,5,7,...行进行操作    
+ 10, ${sed-command} 对10到最后一行进行操作，包括第10行    
+ /context/{sed-command} 对匹配context的行进行操作    
+ /context/,/context2/{sed-command} 对匹配context的行到匹配context2的行操作    
+ /context/,${sed-command} 对匹配context的行到最后一行进行操作     
+ /context/,10 对匹配context的行到第10行进行操作，注意：如果前10行没有匹配到context，sed软件会显示10行以后匹配context的行     
+ 1,/context/{sed-command} 对第1行到匹配context的行进行操作     
+ /context/,+2{sed-command} 对匹配context的行到其后的2行进行操作    
 
-- 分组替换\\\(\\\)和\1
+- 分组替换\\\(\\\)和\1     
 例：提取"oldboy"
 ```
 [wxm@basic sed]$ echo I am oldboy teacher. | sed 's#^.*am \([a-z].*\) tea.*$#\1#g'
